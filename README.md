@@ -17,7 +17,11 @@ The code loads parameters from a config.json file, allowing dynamic runtime upda
 Place the config.json file in the root directory of your application.
 The application will load these parameters dynamically at runtime.
 
-
+## Usage instructions for the project
+Run the following command to fetch and install all dependencies:
+'''
+  cargo build
+'''
 
 
 
