@@ -1,12 +1,14 @@
 use async_trait::async_trait;
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::error::Error;
 use std::fs::{self, File};
 use std::io::Read;
-use tokio::sync::watch;
+use std::sync::mpsc::channel;
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::RwLock;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -101,11 +103,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Create a shared, mutable configuration for runtime updates
     let config = Arc::new(RwLock::new(config));
 
-    // Watch for configuration updates (if needed, you can implement file watchers here)
-    let (tx, mut rx) = watch::channel(config.clone());
+    // Set up a real-time file watcher
+    let config_clone = Arc::clone(&config);
     tokio::spawn(async move {
-        while rx.changed().await.is_ok() {
-            println!("Configuration updated: {:?}", *rx.borrow());
+        let (tx, rx) = channel();
+        let mut watcher = watcher(tx, Duration::from_secs(2)).unwrap();
+        watcher.watch("./config.json", RecursiveMode::NonRecursive).unwrap();
+
+        for event in rx {
+            match event {
+                DebouncedEvent::Write(path) => {
+                    println!("Configuration file updated: {:?}", path);
+                    let config_data = fs::read_to_string(config_path).unwrap();
+                    let updated_config: Config = serde_json::from_str(&config_data).unwrap();
+                    *config_clone.write().await = updated_config;
+                }
+                _ => {}
+            }
         }
     });
 
