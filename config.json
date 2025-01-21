@@ -1,0 +1,5 @@
+{
+    "base_url": "https://cisco-device.example.com",
+    "token": "your_cisco_api_token",
+    "os_file_path": "./cisco_os_upgrade.bin"
+}
