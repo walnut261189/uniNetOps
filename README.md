@@ -25,20 +25,26 @@ Run the following command to fetch and install all dependencies
 
 ```
 {
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "CommonJS",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "sourceMap": true
+  "server": {
+    "port": 3000
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "rabbitmq": {
+    "host": "amqp://localhost",
+    "queue": "message_queue",
+    "reconnectInterval": 5000
+  },
+  "logging": {
+    "logDirectory": "./logs",
+    "maxSize": "10m",
+    "maxFiles": "1d"
+  },
+  "rateLimiter": {
+    "windowMs": 60000,
+    "maxRequests": 100
+  },
+  "auth": {
+    "tokenSecret": "your-secure-token-secret"
+  }
 }
 
 ```
